@@ -1,1 +1,882 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מבוא למערכות מידע וניהול נתונים</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Alef:wght@400;700&family=Open+Sans:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --info: #3498db;
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Alef', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+            overflow-x: hidden;
+        }
+        
+        h1, h2, h3, h4 {
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary), #1a2530);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--secondary);
+        }
+        
+        .logo-text h1 {
+            font-size: 1.8rem;
+            margin: 0;
+        }
+        
+        .logo-text p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin: 0;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        
+        nav a:hover {
+            background-color: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(44, 62, 80, 0.85), rgba(44, 62, 80, 0.9)), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%232c3e50"/><path d="M0 0L100 100M100 0L0 100" stroke="%233498db" stroke-width="1"/></svg>');
+            background-size: cover;
+            color: white;
+            padding: 5rem 0;
+            text-align: center;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--secondary);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            border: 2px solid var(--secondary);
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background-color: transparent;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--secondary);
+            margin-right: 15px;
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--secondary);
+        }
+        
+        /* Sections */
+        section {
+            padding: 5rem 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .section-title h2 {
+            font-size: 2.2rem;
+            color: var(--primary);
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px;
+        }
+        
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background-color: var(--secondary);
+            border-radius: 2px;
+        }
+        
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: var(--transition);
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        /* Trends Section */
+        .trends-section {
+            background-color: var(--light);
+        }
+        
+        .trends-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+        
+        .trend-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            transition: var(--transition);
+            border-top: 4px solid var(--secondary);
+        }
+        
+        .trend-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .trend-card h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+        
+        .trend-card i {
+            font-size: 2rem;
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+        
+        /* Curriculum Section */
+        .curriculum-list {
+            counter-reset: curriculum-counter;
+        }
+        
+        .curriculum-item {
+            display: flex;
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .curriculum-number {
+            background-color: var(--secondary);
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            width: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .curriculum-content {
+            padding: 20px;
+            flex: 1;
+        }
+        
+        .curriculum-content h3 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        /* Instructor Section */
+        .instructor-section {
+            background-color: var(--light);
+        }
+        
+        .instructor-profile {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .instructor-img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 5px solid var(--secondary);
+        }
+        
+        .instructor-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .instructor-info h3 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .instructor-info p {
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+        
+        /* Contact Section */
+        .contact-form {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: 'Alef', sans-serif;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 3rem 0 1.5rem;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-column h3 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: var(--secondary);
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-column a {
+            color: #ddd;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .footer-column a:hover {
+            color: var(--secondary);
+            padding-right: 5px;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        
+        .social-links a:hover {
+            background-color: var(--secondary);
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .header-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .instructor-profile {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero h2 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .btn-container {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .btn-outline {
+                margin-right: 0;
+            }
+            
+            section {
+                padding: 3rem 0;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            nav ul {
+                gap: 10px;
+                font-size: 0.9rem;
+            }
+            
+            .feature-card, .trend-card {
+                padding: 20px;
+            }
+            
+            .curriculum-item {
+                flex-direction: column;
+            }
+            
+            .curriculum-number {
+                width: 100%;
+                padding: 15px;
+            }
+        }
+        
+        /* Animation Classes */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-database"></i>
+                <div class="logo-text">
+                    <h1>מבוא למערכות מידע וניהול נתונים</h1>
+                    <p>קורס מקוון מתקדם לניהול וניתוח מידע</p>
+                </div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#home">בית</a></li>
+                    <li><a href="#about">על הקורס</a></li>
+                    <li><a href="#trends">מגמות</a></li>
+                    <li><a href="#curriculum"> תוכן הלימוד</a></li>
+                    <li><a href="#instructor">המרצה</a></li>
+                    <li><a href="#contact">הרשמה</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container hero-content">
+            <h2> domina את עולם המידע והנתונים</h2>
+            <p> קורס יסודי ומתקדם המספק ידע מעשי ומעודכן בתחום מערכות המידע וניהול הנתונים בזק掐ת הטכנולוגיה העכשווית.</p>
+            <div class="btn-container">
+                <a href="#contact" class="btn">הרשמה לקורס</a>
+                <a href="#about" class="btn btn-outline">למידע נוסף</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <div class="container">
+            <div class="section-title">
+                <h2>על הקורס</h2>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h3>בסיס תיאורטיsolid</h3>
+                    <p>לימוד עקרונות יסודיים של מערכות מידע, מבנה נתונים, תהליכים עסקיים ומערכות ניהול מסדי נתונים.</p>
+                </div>
+                
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3> hands-on מעשי</h3>
+                    <p>מעבדות מערכיות ופרויקטים אמיתיים בשימוש בכלים מוכרים: SQL, Excel, Power BI, Tableau ועוד.</p>
+                </div>
+                
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3> ניתוח נתונים</h3>
+                    <p>פיתוח כישורי ניתוח נתונים והפקת תובנות עסקיות מהמידע בעזרת כלים מתקדמים.</p>
+                </div>
+                
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <h3> טכנולוגיות מודרניות</h3>
+                    <p>חשיפה לפלטפורמות云计算, Big Data, Machine Learning ואחסון מידע בענן.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trends Section -->
+    <section id="trends" class="trends-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>מגמות מובילות בתחום</h2>
+            </div>
+            <div class="trends-grid">
+                <div class="trend-card animate-on-scroll">
+                    <i class="fab fa-microsoft"></i>
+                    <h3>Microsoft Fabric</h3>
+                    <p>פלטפורמה אינטגרטיבית לניתוח נתונים וניהול מידע בכל הסביבות העסקיות.</p>
+                </div>
+                
+                <div class="trend-card animate-on-scroll">
+                    <i class="fas fa-brain"></i>
+                    <h3>AI & Machine Learning</h3>
+                    <p>אינטגרציה של אלגוריתמים חכמים במערכות מידע לניתוח חכם ותחזיות.</p>
+                </div>
+                
+                <div class="trend-card animate-on-scroll">
+                    <i class="fas fa-server"></i>
+                    <h3>Cloud Computing</h3>
+                    <p>מעבר לאחסון ועיבוד מידע בענן עם AWS, Azure ו-Google Cloud Platform.</p>
+                </div>
+                
+                <div class="trend-card animate-on-scroll">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Cyber Security</h3>
+                    <p>הגנה על מידע ופרטיות במערכות מידע מתקדמות.</p>
+                </div>
+                
+                <div class="trend-card animate-on-scroll">
+                    <i class="fas fa-tablet-alt"></i>
+                    <h3>Data Visualization</h3>
+                    <p>יצירת דאשבורדים ותצוגות חזותיות לניתוח והצגת מידע.</p>
+                </div>
+                
+                <div class="trend-card animate-on-scroll">
+                    <i class="fas fa-sync-alt"></i>
+                    <h3>Real-time Analytics</h3>
+                    <p>עיבוד וניתוח נתונים בזמן אמת לקבלת תובנות מיידיות.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Curriculum Section -->
+    <section id="curriculum">
+        <div class="container">
+            <div class="section-title">
+                <h2> תוכן הלימוד</h2>
+            </div>
+            <div class="curriculum-list">
+                <div class="curriculum-item animate-on-scroll">
+                    <div class="curriculum-number">1</div>
+                    <div class="curriculum-content">
+                        <h3> מבוא למערכות מידע</h3>
+                        <p> הגדרת מערכות מידע, סוגי מערכות, מערכות תפעוליות מול מערכות תומכות החלטה, תהליכי תכנון ופיתוח.</p>
+                    </div>
+                </div>
+                
+                <div class="curriculum-item animate-on-scroll">
+                    <div class="curriculum-number">2</div>
+                    <div class="curriculum-content">
+                        <h3> מבנה הנתונים</h3>
+                        <p> מבני נתונים בסיסיים, בסיסי נתונים רלציוניים, שפת SQL, נורמליזציה ומודלים ERD.</p>
+                    </div>
+                </div>
+                
+                <div class="curriculum-item animate-on-scroll">
+                    <div class="curriculum-number">3</div>
+                    <div class="curriculum-content">
+                        <h3> ניתוח נתונים</h3>
+                        <p> תהליכים של איסוף, ניקוי, עיבוד והצגת נתונים. שימוש בכלים כמו Excel, Python ו-R.</p>
+                    </div>
+                </div>
+                
+                <div class="curriculum-item animate-on-scroll">
+                    <div class="curriculum-number">4</div>
+                    <div class="curriculum-content">
+                        <h3> Big Data ו-analytics</h3>
+                        <p> עקרונות של Big Data, פתרונות Hadoop ו-Spark, ניתוח נתונים בסביבות大数据.</p>
+                    </div>
+                </div>
+                
+                <div class="curriculum-item animate-on-scroll">
+                    <div class="curriculum-number">5</div>
+                    <div class="curriculum-content">
+                        <h3> Cloud Computing</h3>
+                        <p> מעבר לענן עם AWS, Azure, Google Cloud. إدارة משאבים בענן ופתרונות SaaS.</p>
+                    </div>
+                </div>
+                
+                <div class="curriculum-item animate-on-scroll">
+                    <div class="curriculum-number">6</div>
+                    <div class="curriculum-content">
+                        <h3> Data Visualization</h3>
+                        <p> עיצוב דאשבורדים ב-Power BI, Tableau, QlikSense. עקרונות ויזואליזציה אפקטיבית.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Instructor Section -->
+    <section id="instructor" class="instructor-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>המרצה</h2>
+            </div>
+            <div class="instructor-profile">
+                <div class="instructor-img">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PGNpcmNsZSBjeD0iNTAiIGN5PSI1MCIgcj0iNDUiIGZpbGw9IiMzMzk4ZGIiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSIxMCIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik01MCA1NUwyNSA5MG01MCAwTDUwIDU1IiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iOCIgZmlsbD0ibm9uZSIvPjwvc3ZnPg==" alt="פרופ' דן כהן">
+                </div>
+                <div class="instructor-info">
+                    <h3>פרופ' דן כהן</h3>
+                    <p><strong>מומחה למדעי המחשב ומערכות מידע</strong></p>
+                    <p>פרופסור למדעי המחשב באוניברסיטת תל אביב, בעל ניסיון של מעל 20 שנה בהוראת מערכות מידע וניהול נתונים. מחקריו מתמקדים ב-analystics大数据, machine learning ו-cloud computing.</p>
+                    <p>היה יועץ טכנולוגי לחברות גדולות בישראל ובעולם, וمؤسس מספר סטארטאפים בתחום האלגוריתמים וניתוח מידע.</p>
+                    <p><i class="fas fa-envelope"></i> dan.cohen@university.edu | <i class="fas fa-phone"></i> 03-1234567</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <div class="container">
+            <div class="section-title">
+                <h2>הרשמה לקורס</h2>
+            </div>
+            <div class="contact-form">
+                <form id="registrationForm">
+                    <div class="form-group">
+                        <label for="name">שם מלא</label>
+                        <input type="text" id="name" class="form-control" placeholder="הזן את שמך המלא" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">כתובת דוא"ל</label>
+                        <input type="email" id="email" class="form-control" placeholder="your@email.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">מספר טלפון</label>
+                        <input type="tel" id="phone" class="form-control" placeholder="050-1234567">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="experience">רמת ניסיון בתחום</label>
+                        <select id="experience" class="form-control">
+                            <option value="">בחר רמת ניסיון</option>
+                            <option value="beginner">מתחיל</option>
+                            <option value="intermediate">בינוני</option>
+                            <option value="advanced">מתקדם</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">ทำไม אתה רוצה להירשם לקורס?</label>
+                        <textarea id="message" class="form-control" placeholder="ספר לנו מה מוביל אותך ללימודים בתחום..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn">שלח הרשמה</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>關於 הקורס</h3>
+                    <p>קורס מקוון המספק ידע מעשי ומעודכן בתחום מערכות המידע וניהול הנתונים, עם דגש על טכנולוגיות מודרניות ומיומנויות פרקטיות.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>קישורים מהירים</h3>
+                    <ul>
+                        <li><a href="#home">דף הבית</a></li>
+                        <li><a href="#about">על הקורס</a></li>
+                        <li><a href="#trends">מגמות מובילות</a></li>
+                        <li><a href="#curriculum"> תוכן הלימוד</a></li>
+                        <li><a href="#instructor">המרצה</a></li>
+                        <li><a href="#contact">הרשמה</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>פרטי קשר</h3>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> הרצליה, ישראל</li>
+                        <li><i class="fas fa-phone"></i> 03-1234567</li>
+                        <li><i class="fas fa-envelope"></i> info@datacourse.co.il</li>
+                        <li><i class="fas fa-clock"></i> א'-ה': 09:00-17:00</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2023 מבוא למערכות מידע וניהול נתונים. כל הזכויות שמורות.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simple animation on scroll
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+            
+            document.querySelectorAll('.animate-on-scroll').forEach(box => {
+                observer.observe(box);
+            });
+            
+            // Form submission
+            const form = document.getElementById('registrationForm');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const name = document.getElementById('name').value;
+                
+                // Show success message
+                alert(`תודה ${name}! הרשמתך נשלחה בהצלחה. צוות הקורס ייצור איתך קשר בהקדם.`);
+                form.reset();
+            });
+            
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('nav a').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
 
