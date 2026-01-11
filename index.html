@@ -1,1 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnHub - Modern Course Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        secondary: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        },
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    boxShadow: {
+                        'glass': 'inset 0 0 0 1px rgba(255, 255, 255, 0.1)',
+                        'card': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                        'card-hover': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                    },
+                    backdropBlur: {
+                        xs: '2px',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            min-height: 100vh;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        }
+        
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+        
+        @media (min-width: 1024px) {
+            .sidebar.collapsed {
+                transform: translateX(0);
+                width: 80px;
+            }
+        }
+        
+        .sidebar-link:hover {
+            background: linear-gradient(to right, #0ea5e9, #0d9488);
+            color: white;
+        }
+        
+        .sidebar-link.active {
+            background: linear-gradient(to right, #0ea5e9, #0d9488);
+            color: white;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(to right, #0ea5e9, #0d9488);
+        }
+        
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .course-card {
+            transition: all 0.3s ease;
+        }
+        
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <!-- Main Container -->
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar fixed lg:relative z-30 w-64 h-screen bg-white shadow-lg glass-card">
+            <div class="p-5 border-b border-slate-200">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-primary-500 to-secondary-500 flex items-center justify-center">
+                        <i class="fas fa-graduation-cap text-white text-xl"></i>
+                    </div>
+                    <span class="text-xl font-bold text-slate-800">LearnHub</span>
+                </div>
+            </div>
+            
+            <nav class="p-4">
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#" class="sidebar-link active flex items-center p-3 rounded-lg text-slate-700">
+                            <i class="fas fa-home mr-3 text-lg"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link flex items-center p-3 rounded-lg text-slate-700">
+                            <i class="fas fa-book-open mr-3 text-lg"></i>
+                            <span>Courses</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link flex items-center p-3 rounded-lg text-slate-700">
+                            <i class="fas fa-users mr-3 text-lg"></i>
+                            <span>Students</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link flex items-center p-3 rounded-lg text-slate-700">
+                            <i class="fas fa-chalkboard-user mr-3 text-lg"></i>
+                            <span>Instructors</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link flex items-center p-3 rounded-lg text-slate-700">
+                            <i class="fas fa-chart-line mr-3 text-lg"></i>
+                            <span>Analytics</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link flex items-center p-3 rounded-lg text-slate-700">
+                            <i class="fas fa-cog mr-3 text-lg"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-200">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 flex items-center justify-center text-white font-semibold">
+                        A
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-slate-800">Alex Johnson</p>
+                        <p class="text-xs text-slate-500">Administrator</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="flex-1 lg:ml-0">
+            <!-- Header -->
+            <header class="sticky top-0 z-20 bg-white/80 backdrop-blur-sm border-b border-slate-200">
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex items-center">
+                        <button id="menu-toggle" class="lg:hidden text-slate-600 mr-4">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h1 class="text-xl font-bold text-slate-800">Dashboard</h1>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                            <i class="fas fa-search absolute left-3 top-3 text-slate-400"></i>
+                        </div>
+                        
+                        <div class="relative">
+                            <button class="text-slate-600 relative">
+                                <i class="fas fa-bell text-xl"></i>
+                                <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 flex items-center justify-center text-white font-semibold">
+                                A
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Dashboard Content -->
+            <div class="p-6">
+                <!-- Stats Overview -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-6">Overview</h2>
+                    
+                    <div class="dashboard-grid">
+                        <div class="stat-card glass-card rounded-xl p-6 shadow-card">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-lg bg-gradient-to-r from-primary-100 to-primary-200">
+                                    <i class="fas fa-book-open text-primary-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm text-slate-500">Total Courses</p>
+                                    <p class="text-2xl font-bold text-slate-800">24</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center text-sm">
+                                <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                                <span class="text-green-500">12% from last month</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card glass-card rounded-xl p-6 shadow-card">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-lg bg-gradient-to-r from-secondary-100 to-secondary-200">
+                                    <i class="fas fa-users text-secondary-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm text-slate-500">Active Students</p>
+                                    <p class="text-2xl font-bold text-slate-800">1,248</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center text-sm">
+                                <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                                <span class="text-green-500">8.2% from last month</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card glass-card rounded-xl p-6 shadow-card">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-lg bg-gradient-to-r from-amber-100 to-amber-200">
+                                    <i class="fas fa-dollar-sign text-amber-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm text-slate-500">Monthly Revenue</p>
+                                    <p class="text-2xl font-bold text-slate-800">$24,800</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center text-sm">
+                                <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                                <span class="text-green-500">4.3% from last month</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card glass-card rounded-xl p-6 shadow-card">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-lg bg-gradient-to-r from-rose-100 to-rose-200">
+                                    <i class="fas fa-file-contract text-rose-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm text-slate-500">Pending Assessments</p>
+                                    <p class="text-2xl font-bold text-slate-800">12</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center text-sm">
+                                <i class="fas fa-arrow-down text-red-500 mr-1"></i>
+                                <span class="text-red-500">3.1% from last month</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Charts Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Enrollment Chart -->
+                    <div class="glass-card rounded-xl p-6 shadow-card">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-bold text-slate-800">Student Enrollment Trend</h3>
+                            <div class="flex space-x-2">
+                                <button class="text-xs px-3 py-1 rounded-lg bg-slate-100 text-slate-600">Month</button>
+                                <button class="text-xs px-3 py-1 rounded-lg bg-primary-100 text-primary-600">Year</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="enrollmentChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Course Distribution -->
+                    <div class="glass-card rounded-xl p-6 shadow-card">
+                        <h3 class="text-lg font-bold text-slate-800 mb-6">Course Category Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity and Courses -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Recent Activity -->
+                    <div class="glass-card rounded-xl shadow-card">
+                        <div class="p-6 border-b border-slate-200">
+                            <h3 class="text-lg font-bold text-slate-800">Recent Activity</h3>
+                        </div>
+                        <div class="divide-y divide-slate-200">
+                            <div class="p-4 flex items-start">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 flex items-center justify-center text-white font-semibold">
+                                    S
+                                </div>
+                                <div class="ml-4">
+                                    <p class="font-medium text-slate-800">Sarah Miller</p>
+                                    <p class="text-sm text-slate-600">completed JavaScript Fundamentals</p>
+                                    <p class="text-xs text-slate-500 mt-1">2 hours ago</p>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 flex items-start">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center text-white font-semibold">
+                                    M
+                                </div>
+                                <div class="ml-4">
+                                    <p class="font-medium text-slate-800">Michael Chen</p>
+                                    <p class="text-sm text-slate-600">submitted assignment for UX Design Principles</p>
+                                    <p class="text-xs text-slate-500 mt-1">5 hours ago</p>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 flex items-start">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center text-white font-semibold">
+                                    E
+                                </div>
+                                <div class="ml-4">
+                                    <p class="font-medium text-slate-800">Emma Wilson</p>
+                                    <p class="text-sm text-slate-600">enrolled in Python for Data Science</p>
+                                    <p class="text-xs text-slate-500 mt-1">Yesterday</p>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 flex items-start">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-fuchsia-500 flex items-center justify-center text-white font-semibold">
+                                    J
+                                </div>
+                                <div class="ml-4">
+                                    <p class="font-medium text-slate-800">James Rodriguez</p>
+                                    <p class="text-sm text-slate-600">posted in Advanced React Patterns forum</p>
+                                    <p class="text-xs text-slate-500 mt-1">2 days ago</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Popular Courses -->
+                    <div class="glass-card rounded-xl shadow-card">
+                        <div class="p-6 border-b border-slate-200 flex justify-between items-center">
+                            <h3 class="text-lg font-bold text-slate-800">Popular Courses</h3>
+                            <button class="text-sm text-primary-600 font-medium">View All</button>
+                        </div>
+                        <div class="divide-y divide-slate-200">
+                            <div class="p-4">
+                                <div class="flex items-center">
+                                    <div class="w-16 h-16 rounded-lg bg-gradient-to-r from-primary-500 to-secondary-500 flex items-center justify-center text-white">
+                                        <i class="fas fa-code text-xl"></i>
+                                    </div>
+                                    <div class="ml-4 flex-1">
+                                        <h4 class="font-bold text-slate-800">Advanced React Patterns</h4>
+                                        <p class="text-sm text-slate-600">Alex Johnson</p>
+                                        <div class="flex items-center mt-2">
+                                            <div class="flex items-center text-amber-500">
+                                                <i class="fas fa-star text-xs"></i>
+                                                <i class="fas fa-star text-xs"></i>
+                                                <i class="fas fa-star text-xs"></i>
+                                                <i class="fas fa-star text-xs"></i>
+                                                <i class="fas fa-star-half-alt text-xs"></i>
+                                            </div>
+                                            <span class="text-xs text-slate-500 ml-2">(4.8)</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-bold text-slate-800">$89</p>
+                                        <p class="text-xs text-slate-500">124 students</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4">
+                                <div class="flex items-center">
+                                    <div class="w-16 h-16 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center text-white">
+                                        <i class="fas fa-chart-bar text-xl"></i>
+                                    </div>
+                                    <div class="ml-4 flex-1">
+                                        <h4 class="font-bold text-slate-800">Data Visualization with D3.js</h4>
+                                        <p class="text-sm text-slate-600">Sarah Miller</p>
+                                        <div class="flex items-center mt-2">
+                                            <div class="flex items-center text-amber-500">
+                                                <i class="fas fa-star text-xs"></i>
+                                                <i class="fas fa-star text-xs"></i>
+                                                <i class="fas fa-star text-xs"></i>
+                                                <i class="fas fa-star text-xs"></i>
+                                                <i class="far fa-star text-xs"></i>
+                                            </div>
+                                            <span class="text-xs text-slate-500 ml-2">(4.5)</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-bold text-slate-800">$129</p>
+                                        <p class="text-xs text-slate-500">89 students</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4">
+                                <div class="flex items-center">
+                                    <div class="w-16 h-16 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center text-white">
+                                        <i class="fas fa-paint-brush text-xl"></i>
+                                    </div>
+                                    <div class="ml-4 flex-1">
+                                        <h4 class="font-bold text-slate-800">UX Design Principles</h4>
+                                        <p class="text-sm text-slate-600">Michael Chen</p>
+                                        <div class="flex items-center mt-2">
+                                            <div class="flex items-center text-amber-500">
+                                                <i class="fas fa-star text-xs"></i>
+                                                <i class="fas fa-star text-xs"></i>
+                                                <i class="fas fa-star text-xs"></i>
+                                                <i class="fas fa-star text-xs"></i>
+                                                <i class="fas fa-star text-xs"></i>
+                                            </div>
+                                            <span class="text-xs text-slate-500 ml-2">(5.0)</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-bold text-slate-800">$79</p>
+                                        <p class="text-xs text-slate-500">156 students</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // Toggle sidebar on mobile
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        });
+        
+        // Initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enrollment Chart
+            const enrollmentCtx = document.getElementById('enrollmentChart').getContext('2d');
+            const enrollmentChart = new Chart(enrollmentCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Students Enrolled',
+                        data: [120, 190, 150, 220, 180, 300, 280, 320, 350, 400, 380, 450],
+                        borderColor: '#0ea5e9',
+                        backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#0ea5e9',
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Category Distribution Chart
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            const categoryChart = new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Web Development', 'Data Science', 'Design', 'Business'],
+                    datasets: [{
+                        data: [45, 25, 15, 15],
+                        backgroundColor: [
+                            '#0ea5e9',
+                            '#14b8a6',
+                            '#f59e0b',
+                            '#ef4444'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        });
+    </script>
+</body>
+</html>
 
