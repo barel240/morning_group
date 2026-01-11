@@ -1,0 +1,214 @@
+/*****************************************************************
+ * FULL-STACK COURSE MANAGEMENT SYSTEM
+ * Tech: React 18, TypeScript, Tailwind, Express, MongoDB, JWT
+ *****************************************************************/
+
+/* ========================= BACKEND ========================= */
+
+import express from "express"
+import mongoose from "mongoose"
+import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
+import cors from "cors"
+
+/* ---------- ENV ---------- */
+const JWT_SECRET = "super-secret"
+const MONGO_URI = "mongodb://localhost:27017/cms"
+
+/* ---------- MODELS ---------- */
+const UserSchema = new mongoose.Schema({
+  email: String,
+  password: String,
+  role: { type: String, enum: ["admin", "instructor", "student"] }
+})
+
+const CourseSchema = new mongoose.Schema({
+  title: String,
+  description: String,
+  price: Number,
+  instructor: String,
+  createdAt: { type: Date, default: Date.now }
+})
+
+const User = mongoose.model("User", UserSchema)
+const Course = mongoose.model("Course", CourseSchema)
+
+/* ---------- SERVER ---------- */
+const app = express()
+app.use(cors())
+app.use(express.json())
+
+/* ---------- AUTH ---------- */
+function auth(req: any, res: any, next: any) {
+  const token = req.headers.authorization?.split(" ")[1]
+  if (!token) return res.sendStatus(401)
+  try {
+    req.user = jwt.verify(token, JWT_SECRET)
+    next()
+  } catch {
+    res.sendStatus(403)
+  }
+}
+
+/* ---------- ROUTES ---------- */
+app.post("/api/register", async (req, res) => {
+  const hashed = await bcrypt.hash(req.body.password, 10)
+  const user = await User.create({ ...req.body, password: hashed })
+  res.json(user)
+})
+
+app.post("/api/login", async (req, res) => {
+  const user = await User.findOne({ email: req.body.email })
+  if (!user) return res.sendStatus(401)
+
+  const valid = await bcrypt.compare(req.body.password, user.password)
+  if (!valid) return res.sendStatus(401)
+
+  const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
+    expiresIn: "15m"
+  })
+
+  res.json({ token })
+})
+
+app.get("/api/courses", auth, async (_, res) => {
+  res.json(await Course.find())
+})
+
+app.post("/api/courses", auth, async (req, res) => {
+  res.json(await Course.create(req.body))
+})
+
+mongoose.connect(MONGO_URI).then(() =>
+  app.listen(4000, () => console.log("API running on :4000"))
+)
+
+/* ========================= FRONTEND ========================= */
+
+/* ---------- REACT ---------- */
+import React, { useState } from "react"
+import ReactDOM from "react-dom/client"
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import { motion } from "framer-motion"
+
+/* ---------- AUTH CONTEXT ---------- */
+const AuthContext = React.createContext<any>(null)
+
+function AuthProvider({ children }: any) {
+  const [token, setToken] = useState<string | null>(null)
+  return (
+    <AuthContext.Provider value={{ token, setToken }}>
+      {children}
+    </AuthContext.Provider>
+  )
+}
+
+function Protected({ children }: any) {
+  const { token } = React.useContext(AuthContext)
+  return token ? children : <Navigate to="/login" />
+}
+
+/* ---------- PAGES ---------- */
+function Login() {
+  const { setToken } = React.useContext(AuthContext)
+  const login = async () => {
+    const res = await fetch("http://localhost:4000/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: "admin@test.com", password: "123456" })
+    })
+    const data = await res.json()
+    setToken(data.token)
+  }
+
+  return (
+    <div className="h-screen grid place-items-center bg-gradient-to-br from-indigo-600 to-teal-600">
+      <button
+        onClick={login}
+        className="px-6 py-3 bg-white rounded-xl shadow-lg font-semibold"
+      >
+        Login
+      </button>
+    </div>
+  )
+}
+
+function Dashboard() {
+  return (
+    <motion.div
+      className="p-6 grid gap-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
+      <div className="backdrop-blur-xl bg-white/10 rounded-xl p-6 shadow-lg">
+        <h1 className="text-2xl font-bold text-white">Dashboard</h1>
+        <p className="text-slate-200">Enrollment & revenue analytics</p>
+      </div>
+    </motion.div>
+  )
+}
+
+function Courses() {
+  const [courses, setCourses] = useState<any[]>([])
+
+  React.useEffect(() => {
+    fetch("http://localhost:4000/api/courses", {
+      headers: { Authorization: `Bearer ${localStorage.token}` }
+    })
+      .then(res => res.json())
+      .then(setCourses)
+  }, [])
+
+  return (
+    <div className="p-6 grid gap-4">
+      {courses.map(c => (
+        <div key={c._id} className="bg-white p-4 rounded-xl shadow">
+          <h2 className="font-semibold">{c.title}</h2>
+          <p>{c.description}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/* ---------- APP ---------- */
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/"
+          element={
+            <Protected>
+              <Dashboard />
+            </Protected>
+          }
+        />
+        <Route
+          path="/courses"
+          element={
+            <Protected>
+              <Courses />
+            </Protected>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
+  )
+}
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <AuthProvider>
+    <App />
+  </AuthProvider>
+)
+
+/* ========================= STYLES ========================= */
+/*
+Tailwind classes used:
+- bg-gradient-to-br from-indigo-600 to-teal-600
+- backdrop-blur-xl bg-white/10
+- shadow-lg rounded-xl
+- transition-all duration-300
+*/
